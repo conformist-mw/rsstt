@@ -7,5 +7,6 @@ import (
 func main() {
 	var a int
 	fmt.Scan(&a)
-	fmt.Println(a % 10)
+	a = a % 100
+	fmt.Println(a / 10)
 }
