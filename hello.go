@@ -2,9 +2,11 @@ package main
 
 import (
 	"fmt"
-	"rsc.io/quote"
 )
 
 func main() {
-	fmt.Println(quote.Go())
+	var a int
+	fmt.Scan(&a)
+	a *= a
+	fmt.Println(a)
 }
