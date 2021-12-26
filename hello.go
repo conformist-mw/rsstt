@@ -5,8 +5,9 @@ import (
 )
 
 func main() {
-	var a int
-	fmt.Scan(&a)
-	a = a % 100
-	fmt.Println(a / 10)
+	var seconds, hours, minutes int
+	fmt.Scan(&seconds)
+	hours = seconds / 30
+	minutes = 2 * (seconds % 30)
+	fmt.Println("It is", hours, "hours", minutes, "minutes.")
 }
