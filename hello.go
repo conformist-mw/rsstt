@@ -7,12 +7,10 @@ import (
 func main() {
 	var number int
 	fmt.Scan(&number)
-	switch {
-	case number == 0:
-		fmt.Println("Ноль")
-	case number > 0:
-		fmt.Println("Число положительное")
-	default:
-		fmt.Println("Число отрицательное")
+	var first, second, third int = number / 100, (number / 10) % 10, number % 10
+	if first != second && second != third && third != first {
+		fmt.Println("YES")
+	} else {
+		fmt.Println("NO")
 	}
 }
