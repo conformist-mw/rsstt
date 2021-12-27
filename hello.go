@@ -5,9 +5,14 @@ import (
 )
 
 func main() {
-	var seconds, hours, minutes int
-	fmt.Scan(&seconds)
-	hours = seconds / 30
-	minutes = 2 * (seconds % 30)
-	fmt.Println("It is", hours, "hours", minutes, "minutes.")
+	var number int
+	fmt.Scan(&number)
+	switch {
+	case number == 0:
+		fmt.Println("Ноль")
+	case number > 0:
+		fmt.Println("Число положительное")
+	default:
+		fmt.Println("Число отрицательное")
+	}
 }
