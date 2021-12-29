@@ -2,21 +2,23 @@ package main
 
 import (
 	"fmt"
+	"math"
 )
 
 func main() {
 	var number int
 	fmt.Scan(&number)
-	switch {
-	case number == 10000:
-		fmt.Println(1)
-	case 10000 > number && number > 999:
-		fmt.Println(number / 1000)
-	case 1000 > number && number > 99:
-		fmt.Println(number / 100)
-	case 100 > number && number > 9:
-		fmt.Println(number / 10)
-	default:
-		fmt.Println(number)
+	var (
+		first int = number % int(math.Pow10(6)) / int(math.Pow10(5))
+		second int = number % int(math.Pow10(5)) / int(math.Pow10(4))
+		third int = number % int(math.Pow10(4)) / int(math.Pow10(3))
+		fourth int = number % int(math.Pow10(3)) / int(math.Pow10(2))
+		fifth int = number % int(math.Pow10(2)) / int(math.Pow10(1))
+		sixth int = number % int(math.Pow10(1)) / int(math.Pow10(0))
+	)
+	if (first + second + third) == (fourth + fifth + sixth) {
+		fmt.Println("YES")
+	} else {
+		fmt.Println("NO")
 	}
 }
