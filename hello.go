@@ -5,13 +5,20 @@ import (
 )
 
 func main() {
-	var count, num, sum int
-	fmt.Scan(&count)
-	for i := 0; i < count; i++ {
+	var (
+		count   = 0
+		max_num = 0
+		num     = 1
+	)
+	for num != 0 {
 		fmt.Scan(&num)
-		if 10 <= num && num < 100 && num%8 == 0 {
-			sum += num
+		if num > max_num {
+			max_num = num
+			count = 0
+		}
+		if num == max_num {
+			count++
 		}
 	}
-	fmt.Println(sum)
+	fmt.Println(count)
 }
