@@ -5,7 +5,13 @@ import (
 )
 
 func main() {
-	for i := 1; i <= 10; i++ {
-		fmt.Println(i * i)
+	var count, num, sum int
+	fmt.Scan(&count)
+	for i := 0; i < count; i++ {
+		fmt.Scan(&num)
+		if 10 <= num && num < 100 && num%8 == 0 {
+			sum += num
+		}
 	}
+	fmt.Println(sum)
 }
