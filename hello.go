@@ -5,20 +5,18 @@ import (
 )
 
 func main() {
-	var (
-		count   = 0
-		max_num = 0
-		num     = 1
-	)
-	for num != 0 {
-		fmt.Scan(&num)
-		if num > max_num {
-			max_num = num
-			count = 0
-		}
-		if num == max_num {
-			count++
+	var n, c, d, result int
+	fmt.Scan(&n)
+	fmt.Scan(&c)
+	fmt.Scan(&d)
+
+	for i := 1; i <= n; i++ {
+		if i%c == 0 && i%d != 0 {
+			result = i
+			break
 		}
 	}
-	fmt.Println(count)
+	if result != 0 {
+		fmt.Println(result)
+	}
 }
