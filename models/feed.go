@@ -9,8 +9,8 @@ import (
 
 type Feed struct {
 	gorm.Model
-	Url           string       `gorm:"type:varchar(255);unique_index", json:"url"`
-	Title         *string      `gorm:"type:varchar(255)", json:"title"`
+	Url           string       `gorm:"type:varchar(255);unique_index" json:"url"`
+	Title         *string      `gorm:"type:varchar(255)" json:"title"`
 	Description   *string      `json:"description"`
 	Link          string       `json:"link"`
 	FeedLink      *string      `json:"feed_link"`
