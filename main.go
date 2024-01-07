@@ -8,7 +8,6 @@ import (
 
 func main() {
 	models.ConnectDb()
-	service.CreateFeed("https://www.opennet.me/opennews/opennews_all_utf.rss")
 	feeds := repository.FetchOutdatedFeeds()
 	for _, feed := range feeds {
 		service.FetchFeed(&feed)
