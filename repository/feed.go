@@ -7,6 +7,25 @@ import (
 	"github.com/mmcdole/gofeed"
 )
 
+func CreateFeed(url string, feed *gofeed.Feed) {
+	feedModel := models.Feed{
+		Url:         url,
+		Title:       &feed.Title,
+		Description: &feed.Description,
+		Link:        feed.Link,
+		FeedLink:    &feed.FeedLink,
+		FeedType:    feed.FeedType,
+		FeedVersion: feed.FeedVersion,
+	}
+	models.DB.Create(&feedModel)
+}
+
+func GetFeedByUrl(url string) models.Feed {
+	var feed models.Feed
+	models.DB.Where("url = ?", url).First(&feed)
+	return feed
+}
+
 func FetchAllFeeds() []models.Feed {
 	var feeds []models.Feed
 	models.DB.Find(&feeds)
@@ -45,6 +64,7 @@ func AddItem(feedId uint, feedItem *gofeed.Item) {
 		Link:        feedItem.Link,
 		Description: &feedItem.Description,
 		Content:     &feedItem.Content,
+		PublishedAt: feedItem.PublishedParsed,
 	}
 	models.DB.Create(&item)
 }
