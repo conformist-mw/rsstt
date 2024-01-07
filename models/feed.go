@@ -18,6 +18,7 @@ type Feed struct {
 	Items         []Item       `json:"items"`
 }
 
+// TODO: add pubdate to item
 type Item struct {
 	gorm.Model
 	Title       *string `json:"title"`
