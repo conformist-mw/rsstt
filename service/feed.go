@@ -40,3 +40,10 @@ func FetchFeed(feed *models.Feed) {
 	}
 	repository.SetLastFetchedAt(feed)
 }
+
+func UpdateFeeds() {
+	feeds := repository.FetchAllFeeds()
+	for _, feed := range feeds {
+		FetchFeed(&feed)
+	}
+}
