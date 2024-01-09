@@ -2,6 +2,7 @@ package models
 
 import "gorm.io/gorm"
 
+// TODO: make indexes and constraints
 type User struct {
 	gorm.Model
 	Username      *string        `gorm:"type:varchar(255)" json:"username"`

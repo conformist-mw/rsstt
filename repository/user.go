@@ -26,7 +26,7 @@ func GetUsers() []models.User {
 
 func GetUnseenItems(user_id uint) []models.Item {
 	var items []models.Item
-	models.DB.Where("subscriptions.user_id = ?", user_id).
+	models.DB.Where("subscriptions.user_id = ? AND seen_items.item_id IS NULL", user_id).
 		Joins("JOIN feeds ON items.feed_id = feeds.id").
 		Joins("JOIN subscriptions ON feeds.id = subscriptions.feed_id").
 		Joins("LEFT OUTER JOIN seen_items ON items.id = seen_items.item_id AND seen_items.user_id = ?", user_id).
