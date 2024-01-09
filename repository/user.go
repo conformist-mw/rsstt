@@ -9,6 +9,12 @@ func CreateUser(tg_chat_id string) {
 	models.DB.Create(&user)
 }
 
+func GetUserByTgChatId(tg_chat_id string) models.User {
+	var user models.User
+	models.DB.Where("tg_chat_id = ?", tg_chat_id).First(&user)
+	return user
+}
+
 func CreateSubscription(user_id uint, feed_id uint) {
 	subscription := models.Subscription{
 		UserID:   user_id,
