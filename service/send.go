@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"text/template"
 
 	"github.com/conformist-mw/rsstt/models"
 	"github.com/conformist-mw/rsstt/repository"
@@ -17,34 +16,20 @@ type TelegramMessage struct {
 	ParseMode string `json:"parse_mode"`
 }
 
-func generateMessage(item *models.Item) (string, error) {
-	markup := `
-	<b><a href="{{ .Link }}">{{ .Title }}</a></b>
-
-	{{ .Description }}
-	`
-	tmpl, err := template.New("").Parse(markup)
-	if err != nil {
-		return "", err
+func generateMessage(item *models.Item) string {
+	message := fmt.Sprintf("<b><a href=\"%s\">%s</a></b>", item.Link, *item.Title)
+	if item.Description != nil {
+		if len(message)+len(*item.Description) <= 4096-2 {
+			message += "\n\n" + *item.Description
+		}
 	}
-	var rendered bytes.Buffer
-	err = tmpl.Execute(&rendered, item)
-	if err != nil {
-		return "", err
-	}
-
-	return rendered.String(), nil
+	return message
 }
 
 func SendItemToUser(item *models.Item, tgChatId string, botUrl string) error {
-	msg, err := generateMessage(item)
-	if err != nil {
-		return err
-	}
-
 	tgMessage := TelegramMessage{
 		ChatID:    tgChatId,
-		Text:      msg,
+		Text:      generateMessage(item),
 		ParseMode: "HTML",
 	}
 
