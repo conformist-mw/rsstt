@@ -1,38 +1,25 @@
 package main
 
 import (
-	"encoding/json"
-	"fmt"
-	"os"
+	"time"
 
 	"github.com/conformist-mw/rsstt/models"
 	"github.com/conformist-mw/rsstt/service"
 )
 
-type Config struct {
-	TelegramBotToken string `json:"telegram_bot_token"`
+func updateFeeds() {
+	service.UpdateFeeds()
+	time.Sleep(5 * time.Minute)
 }
 
-func (c *Config) TelegramBotURL() string {
-	return fmt.Sprintf("https://api.telegram.org/bot%s/sendMessage", c.TelegramBotToken)
+func sendToAllUsers(botUrl string) {
+	service.SendToAllUsers(botUrl)
+	time.Sleep(5 * time.Minute)
 }
 
-func LoadConfig() (Config, error) {
-	var config Config
-
-	file, err := os.Open("config.json")
-	if err != nil {
-		return config, err
-	}
-	defer file.Close()
-
-	decoder := json.NewDecoder(file)
-	err = decoder.Decode(&config)
-	if err != nil {
-		return config, err
-	}
-
-	return config, nil
+func handleUpdates(token string, url string, adminChatId int64) {
+	bot, updates := service.GetBotAndUpdates(token, url)
+	service.HandleUpdates(bot, updates, adminChatId)
 }
 
 func main() {
@@ -41,7 +28,8 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	service.UpdateFeeds()
-	botUrl := config.TelegramBotURL()
-	service.SendToAllUsers(botUrl)
+	go updateFeeds()
+	go sendToAllUsers(config.TelegramBotURL())
+	go handleUpdates(config.TelegramBotToken, config.TelegramBotUrl, config.TelegramAdminChatID())
+	select {}
 }
