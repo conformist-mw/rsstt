@@ -17,6 +17,9 @@ type Subscription struct {
 	UserID   uint `gorm:"uniqueIndex:idx_user_sub" json:"user_id"`
 	FeedID   uint `gorm:"uniqueIndex:idx_user_sub" json:"feed_id"`
 	IsActive bool `json:"is_active"`
+
+	User User `json:"user"`
+	Feed Feed `json:"feed"`
 }
 
 type SeenItem struct {

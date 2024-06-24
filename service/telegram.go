@@ -3,7 +3,9 @@ package service
 import (
 	"log"
 	"net/http"
+	"strconv"
 
+	"github.com/conformist-mw/rsstt/repository"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
@@ -77,8 +79,9 @@ func HandleUpdates(bot *tgbotapi.BotAPI, updates tgbotapi.UpdatesChannel, adminC
 		if update.Message == nil {
 			continue
 		}
+		tgUserId := update.Message.From.ID
 		log.Printf("[%s] %s", update.Message.From.UserName, update.Message.Text)
-		if update.Message.Chat.ID != int64(adminChatID) {
+		if tgUserId != int64(adminChatID) {
 			continue
 		}
 		if !update.Message.IsCommand() {
@@ -89,10 +92,17 @@ func HandleUpdates(bot *tgbotapi.BotAPI, updates tgbotapi.UpdatesChannel, adminC
 		switch update.Message.Command() {
 		case "help":
 			msg.Text = "I understand /sayhi and /status."
-		case "sayhi":
-			msg.Text = "Hi :)"
-		case "status":
-			msg.Text = "I'm ok."
+		case "feeds":
+			feeds := repository.FetchAllFeeds()
+			for _, feed := range feeds {
+				msg.Text += strconv.Itoa(int(feed.ID)) + " " + feed.Url + "\n"
+			}
+		case "subs":
+			user := repository.GetUserByTgChatId(strconv.Itoa(int(tgUserId)))
+			subs := repository.GetSubscriptions(user.ID)
+			for _, sub := range subs {
+				msg.Text += strconv.Itoa(int(sub.ID)) + " " + sub.Feed.Url + "\n"
+			}
 		default:
 			msg.Text = "I don't know that command"
 		}
