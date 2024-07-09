@@ -1,0 +1,4 @@
+feed.db
+out/
+.git/
+config.json
