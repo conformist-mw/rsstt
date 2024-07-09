@@ -26,7 +26,7 @@ func CreateSubscription(user_id uint, feed_id uint) {
 
 func GetSubscriptions(user_id uint) []models.Subscription {
 	var subscriptions []models.Subscription
-	models.DB.Where("user_id = ?", user_id).Find(&subscriptions)
+	models.DB.Where("user_id = ?", user_id).Preload("Feed").Find(&subscriptions)
 	return subscriptions
 }
 
