@@ -57,8 +57,8 @@ func getWebhookBot(token string, url string) (*tgbotapi.BotAPI, tgbotapi.Updates
 func setCommands(bot *tgbotapi.BotAPI) {
 	commands := []tgbotapi.BotCommand{
 		{Command: "help", Description: "Show help"},
-		{Command: "sayhi", Description: "Say hi"},
-		{Command: "status", Description: "Show status"},
+		{Command: "feeds", Description: "List all feeds"},
+		{Command: "subs", Description: "List all subscriptions"},
 	}
 	if _, err := bot.Request(tgbotapi.SetMyCommandsConfig{
 		Commands: commands,
@@ -88,6 +88,7 @@ func HandleUpdates(bot *tgbotapi.BotAPI, updates tgbotapi.UpdatesChannel, adminC
 			continue
 		}
 		msg := tgbotapi.NewMessage(update.Message.Chat.ID, "")
+		msg.DisableWebPagePreview = true
 
 		switch update.Message.Command() {
 		case "help":
@@ -95,13 +96,13 @@ func HandleUpdates(bot *tgbotapi.BotAPI, updates tgbotapi.UpdatesChannel, adminC
 		case "feeds":
 			feeds := repository.FetchAllFeeds()
 			for _, feed := range feeds {
-				msg.Text += strconv.Itoa(int(feed.ID)) + " " + feed.Url + "\n"
+				msg.Text += strconv.Itoa(int(feed.ID)) + " " + feed.Link + "\n"
 			}
 		case "subs":
 			user := repository.GetUserByTgChatId(strconv.Itoa(int(tgUserId)))
 			subs := repository.GetSubscriptions(user.ID)
 			for _, sub := range subs {
-				msg.Text += strconv.Itoa(int(sub.ID)) + " " + sub.Feed.Url + "\n"
+				msg.Text += strconv.Itoa(int(sub.ID)) + " " + sub.Feed.Link + "\n"
 			}
 		default:
 			msg.Text = "I don't know that command"
