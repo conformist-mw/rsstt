@@ -7,7 +7,7 @@ import (
 	"github.com/mmcdole/gofeed"
 )
 
-func CreateFeed(url string, feed *gofeed.Feed) {
+func CreateFeed(url string, feed *gofeed.Feed) models.Feed {
 	feedModel := models.Feed{
 		Url:         url,
 		Title:       &feed.Title,
@@ -18,6 +18,7 @@ func CreateFeed(url string, feed *gofeed.Feed) {
 		FeedVersion: feed.FeedVersion,
 	}
 	models.DB.Create(&feedModel)
+	return feedModel
 }
 
 func GetFeedByUrl(url string) models.Feed {

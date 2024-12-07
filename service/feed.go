@@ -8,14 +8,18 @@ import (
 	"github.com/mmcdole/gofeed"
 )
 
-func CreateFeed(url string) {
+func CreateFeed(url string) (models.Feed, error) {
 	existingFeed := repository.GetFeedByUrl(url)
 	if existingFeed.ID != 0 {
-		return
+		return existingFeed, nil
 	}
 	fp := gofeed.NewParser()
-	f, _ := fp.ParseURL(url)
-	repository.CreateFeed(url, f)
+	f, error := fp.ParseURL(url)
+	if error != nil {
+		return models.Feed{}, error
+	}
+	newFeed := repository.CreateFeed(url, f)
+	return newFeed, nil
 }
 
 func FetchFeed(feed *models.Feed) {
