@@ -8,6 +8,7 @@ import (
 )
 
 type Config struct {
+	DatabasePath	 string `json:"DATABASE_PATH"`
 	TelegramBotToken string `json:"TELEGRAM_BOT_TOKEN"`
 	TelegramBotUrl   string `json:"TELEGRAM_BOT_URL"`
 	TelegramAdminId  string `json:"TELEGRAM_ADMIN_ID"`

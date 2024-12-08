@@ -23,11 +23,11 @@ func handleUpdates(token string, url string, adminChatId int64) {
 }
 
 func main() {
-	models.ConnectDb()
 	config, err := LoadConfig()
 	if err != nil {
 		panic(err)
 	}
+	models.ConnectDb(config.DatabasePath)
 	go updateFeeds()
 	go sendToAllUsers(config.TelegramBotURL())
 	go handleUpdates(config.TelegramBotToken, config.TelegramBotUrl, config.TelegramAdminChatID())

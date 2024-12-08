@@ -11,7 +11,7 @@ import (
 
 var DB *gorm.DB
 
-func ConnectDb() {
+func ConnectDb(dbPath string) {
 	newLogger := logger.New(
 		log.New(os.Stdout, "\r\n", log.LstdFlags), // io writer
 		logger.Config{
@@ -21,7 +21,7 @@ func ConnectDb() {
 			Colorful:                  true,        // Disable color
 		},
 	)
-	db, err := gorm.Open(sqlite.Open("feed.db"), &gorm.Config{
+	db, err := gorm.Open(sqlite.Open(dbPath), &gorm.Config{
 		Logger: newLogger,
 	})
 	if err != nil {
@@ -30,3 +30,4 @@ func ConnectDb() {
 	db.AutoMigrate(&Feed{}, &Item{}, &User{}, &Subscription{}, &SeenItem{})
 	DB = db
 }
+
