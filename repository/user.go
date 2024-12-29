@@ -1,9 +1,8 @@
 package repository
 
 import (
-	"time"
-
 	"rsstt/models"
+	"time"
 )
 
 func CreateUser(tg_chat_id string) {
@@ -61,11 +60,29 @@ func GetUnseenItems(user_id uint) []models.Item {
 	var items []models.Item
 	last24Hours := time.Now().Add(-24 * time.Hour)
 
+	// get new items from last 24 hours
 	models.DB.Where("subscriptions.user_id = ? AND seen_items.item_id IS NULL AND items.created_at >= ?", user_id, last24Hours).
 		Joins("JOIN feeds ON items.feed_id = feeds.id").
 		Joins("JOIN subscriptions ON feeds.id = subscriptions.feed_id AND subscriptions.user_id = ? AND subscriptions.is_active = TRUE", user_id).
 		Joins("LEFT OUTER JOIN seen_items ON items.id = seen_items.item_id AND seen_items.user_id = ?", user_id).
 		Find(&items)
+
+	// add old unseen items every 3 hours between 8am and 9pm
+	now := time.Now()
+	hour := now.Hour()
+	if hour >= 8 && hour <= 21 && hour%3 == 0 && now.Minute() < 5 {
+		var oldItems []models.Item
+		models.DB.Where("subscriptions.user_id = ? AND seen_items.item_id IS NULL", user_id).
+			Joins("JOIN feeds ON items.feed_id = feeds.id").
+			Joins("JOIN subscriptions ON feeds.id = subscriptions.feed_id AND subscriptions.user_id = ? AND subscriptions.is_active = TRUE", user_id).
+			Joins("LEFT OUTER JOIN seen_items ON items.id = seen_items.item_id AND seen_items.user_id = ?", user_id).
+			Order("items.created_at DESC").
+			Limit(2).
+			Find(&oldItems)
+
+		items = append(items, oldItems...)
+	}
+
 	return items
 }
 
