@@ -44,7 +44,7 @@ func main() {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		updateTicker := time.NewTicker(5 * time.Second)
+		updateTicker := time.NewTicker(5 * time.Minute)
 		defer updateTicker.Stop()
 
 		for {
@@ -63,7 +63,7 @@ func main() {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		sendTicker := time.NewTicker(5 * time.Second)
+		sendTicker := time.NewTicker(5 * time.Minute)
 		defer sendTicker.Stop()
 
 		for {
