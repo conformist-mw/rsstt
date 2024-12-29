@@ -3,12 +3,14 @@ package service
 import (
 	"sort"
 
+	"github.com/conformist-mw/rsstt/logger"
 	"github.com/conformist-mw/rsstt/models"
 	"github.com/conformist-mw/rsstt/repository"
 	"github.com/mmcdole/gofeed"
 )
 
 func CreateFeed(url string) (models.Feed, error) {
+	logger.Log.Debug("Creating feed", url)
 	existingFeed := repository.GetFeedByUrl(url)
 	if existingFeed.ID != 0 {
 		return existingFeed, nil
@@ -23,13 +25,18 @@ func CreateFeed(url string) (models.Feed, error) {
 }
 
 func FetchFeed(feed *models.Feed) {
+	logger.Log.Debug("Fetching feed", feed.Url)
 	existingItemLinks := repository.FetchItemLinksForFeed(feed.ID)
 	existingItemsMap := make(map[string]struct{})
 	for _, link := range existingItemLinks {
 		existingItemsMap[link] = struct{}{}
 	}
 	fp := gofeed.NewParser()
-	f, _ := fp.ParseURL(feed.Url)
+	f, err := fp.ParseURL(feed.Url)
+	if err != nil {
+		logger.Log.Error("Error parsing feed", feed.Url, err)
+		return
+	}
 
 	sort.Slice(f.Items, func(i, j int) bool {
 		if f.Items[i].PublishedParsed != nil && f.Items[j].PublishedParsed != nil {
@@ -43,11 +50,16 @@ func FetchFeed(feed *models.Feed) {
 		}
 	}
 	repository.SetLastFetchedAt(feed)
+	logger.Log.Debug("Feed fetched", feed.Url)
 }
 
-func UpdateFeeds() {
+func UpdateFeeds() error {
+	logger.Log.Debug("Starting feeds update")
 	feeds := repository.FetchAllFeeds()
 	for _, feed := range feeds {
+		logger.Log.Debug("Updating feed", feed.Url)
 		FetchFeed(&feed)
 	}
+	logger.Log.Debug("Feeds update completed")
+	return nil
 }

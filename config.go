@@ -8,10 +8,11 @@ import (
 )
 
 type Config struct {
-	DatabasePath	 string `json:"DATABASE_PATH"`
+	DatabasePath     string `json:"DATABASE_PATH"`
 	TelegramBotToken string `json:"TELEGRAM_BOT_TOKEN"`
 	TelegramBotUrl   string `json:"TELEGRAM_BOT_URL"`
 	TelegramAdminId  string `json:"TELEGRAM_ADMIN_ID"`
+	LogLevel         string `json:"LOG_LEVEL"`
 }
 
 func (c *Config) TelegramBotURL() string {
@@ -34,6 +35,7 @@ func LoadConfig() (Config, error) {
 		"TELEGRAM_BOT_TOKEN": &config.TelegramBotToken,
 		"TELEGRAM_BOT_URL":   &config.TelegramBotUrl,
 		"TELEGRAM_ADMIN_ID":  &config.TelegramAdminId,
+		"LOG_LEVEL":          &config.LogLevel,
 	}
 
 	var loadedFromEnv bool

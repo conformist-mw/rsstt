@@ -27,7 +27,6 @@ func ConnectDb(dbPath string) {
 	if err != nil {
 		panic("failed to connect database")
 	}
-	db.AutoMigrate(&Feed{}, &Item{}, &User{}, &Subscription{}, &SeenItem{})
+	// db.AutoMigrate(&Feed{}, &Item{}, &User{}, &Subscription{}, &SeenItem{})
 	DB = db
 }
-

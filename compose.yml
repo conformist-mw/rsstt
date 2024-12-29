@@ -1,0 +1,9 @@
+services:
+  rsstt:
+    image: rsstt
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./data/feed.db:/data/feed.db
+      - ./config.json:/config.json:ro
