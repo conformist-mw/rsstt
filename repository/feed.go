@@ -3,7 +3,8 @@ package repository
 import (
 	"time"
 
-	"github.com/conformist-mw/rsstt/models"
+	"rsstt/models"
+
 	"github.com/mmcdole/gofeed"
 )
 

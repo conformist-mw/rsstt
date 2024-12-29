@@ -3,7 +3,7 @@ package repository
 import (
 	"time"
 
-	"github.com/conformist-mw/rsstt/models"
+	"rsstt/models"
 )
 
 func CreateUser(tg_chat_id string) {
@@ -58,15 +58,15 @@ func GetUsers() []models.User {
 }
 
 func GetUnseenItems(user_id uint) []models.Item {
-    var items []models.Item
-    last24Hours := time.Now().Add(-24 * time.Hour)
+	var items []models.Item
+	last24Hours := time.Now().Add(-24 * time.Hour)
 
-    models.DB.Where("subscriptions.user_id = ? AND seen_items.item_id IS NULL AND items.created_at >= ?", user_id, last24Hours).
-        Joins("JOIN feeds ON items.feed_id = feeds.id").
-        Joins("JOIN subscriptions ON feeds.id = subscriptions.feed_id AND subscriptions.user_id = ? AND subscriptions.is_active = TRUE", user_id).
-        Joins("LEFT OUTER JOIN seen_items ON items.id = seen_items.item_id AND seen_items.user_id = ?", user_id).
-        Find(&items)
-    return items
+	models.DB.Where("subscriptions.user_id = ? AND seen_items.item_id IS NULL AND items.created_at >= ?", user_id, last24Hours).
+		Joins("JOIN feeds ON items.feed_id = feeds.id").
+		Joins("JOIN subscriptions ON feeds.id = subscriptions.feed_id AND subscriptions.user_id = ? AND subscriptions.is_active = TRUE", user_id).
+		Joins("LEFT OUTER JOIN seen_items ON items.id = seen_items.item_id AND seen_items.user_id = ?", user_id).
+		Find(&items)
+	return items
 }
 
 func MarkItemsAsSeen(user_id uint, item_ids []uint) {

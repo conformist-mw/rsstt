@@ -8,9 +8,9 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/conformist-mw/rsstt/logger"
-	"github.com/conformist-mw/rsstt/models"
-	"github.com/conformist-mw/rsstt/service"
+	"rsstt/logger"
+	"rsstt/models"
+	"rsstt/service"
 )
 
 func main() {

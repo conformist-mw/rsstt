@@ -7,8 +7,9 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/conformist-mw/rsstt/logger"
-	"github.com/conformist-mw/rsstt/repository"
+	"rsstt/logger"
+	"rsstt/repository"
+
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 

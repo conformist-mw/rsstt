@@ -3,9 +3,10 @@ package service
 import (
 	"sort"
 
-	"github.com/conformist-mw/rsstt/logger"
-	"github.com/conformist-mw/rsstt/models"
-	"github.com/conformist-mw/rsstt/repository"
+	"rsstt/logger"
+	"rsstt/models"
+	"rsstt/repository"
+
 	"github.com/mmcdole/gofeed"
 )
 

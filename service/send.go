@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/conformist-mw/rsstt/models"
-	"github.com/conformist-mw/rsstt/repository"
+	"rsstt/models"
+	"rsstt/repository"
 )
 
 type TelegramMessage struct {
