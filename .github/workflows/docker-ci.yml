@@ -31,4 +31,5 @@ jobs:
           context: .
           push: true
           tags: olegsmedyuk/rsstt:latest
-          platforms: linux/amd64
+          platforms: linux/arm64
+
