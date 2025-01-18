@@ -8,7 +8,7 @@ RUN go mod download
 
 COPY . .
 
-RUN CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build -o rsstt
+RUN CGO_ENABLED=1 GOOS=linux GOARCH=arm64v8 go build -o rsstt
 
 FROM alpine:latest
 
