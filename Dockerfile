@@ -1,5 +1,7 @@
-FROM golang:1.21-alpine AS build
-RUN apk --no-cache add build-base gcc musl-dev sqlite-dev
+ARG TARGETOS
+ARG TARGETARCH
+
+FROM golang:1.24-alpine AS builder
 
 WORKDIR /app
 
@@ -8,10 +10,10 @@ RUN go mod download
 
 COPY . .
 
-RUN CGO_ENABLED=1 GOOS=linux GOARCH=arm64 go build -o rsstt
+RUN CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH go build -o rsstt
 
 FROM alpine:latest
 
-COPY --from=build /app/rsstt /
+COPY --from=builder /app/rsstt /
 
 ENTRYPOINT [ "/rsstt" ]
