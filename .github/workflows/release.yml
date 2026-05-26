@@ -1,4 +1,4 @@
-name: docker-ci
+name: release
 
 on:
   push:
