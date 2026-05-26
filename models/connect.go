@@ -21,12 +21,23 @@ func ConnectDb(dbPath string) {
 			Colorful:                  true,
 		},
 	)
-	db, err := gorm.Open(sqlite.Open(dbPath), &gorm.Config{
+	db, err := gorm.Open(sqlite.Open(dbPath+"?_journal_mode=WAL&_busy_timeout=5000"), &gorm.Config{
 		Logger: newLogger,
 	})
 	if err != nil {
 		panic("failed to connect database")
 	}
-	// db.AutoMigrate(&Feed{}, &Item{}, &User{}, &Subscription{}, &SeenItem{})
 	DB = db
+
+	if err := DB.AutoMigrate(&Feed{}, &Item{}, &SeenItem{}); err != nil {
+		log.Fatal("Failed to migrate database:", err)
+	}
+
+	createIndexes()
+}
+
+func createIndexes() {
+	DB.Exec("CREATE INDEX IF NOT EXISTS idx_feeds_active ON feeds(is_active, deleted_at)")
+	DB.Exec("CREATE INDEX IF NOT EXISTS idx_items_feed_created ON items(feed_id, created_at)")
+	DB.Exec("CREATE INDEX IF NOT EXISTS idx_items_created_at ON items(created_at)")
 }
