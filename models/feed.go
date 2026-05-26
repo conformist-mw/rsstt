@@ -9,7 +9,7 @@ import (
 
 type Feed struct {
 	gorm.Model
-	Url           string       `gorm:"type:varchar(255);unique_index" json:"url"`
+	Url           string       `gorm:"type:varchar(255);uniqueIndex" json:"url"`
 	Title         *string      `gorm:"type:varchar(255)" json:"title"`
 	Description   *string      `json:"description"`
 	Link          string       `json:"link"`
@@ -17,6 +17,7 @@ type Feed struct {
 	FeedType      string       `json:"feed_type"`
 	FeedVersion   string       `json:"feed_version"`
 	LastFetchedAt sql.NullTime `json:"last_fetched_at"`
+	IsActive      bool         `gorm:"default:true" json:"is_active"`
 	Items         []Item       `json:"items"`
 }
 

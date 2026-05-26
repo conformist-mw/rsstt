@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"fmt"
+	"net/http"
 	"os"
 	"os/signal"
 	"sync"
@@ -11,6 +13,7 @@ import (
 	"rsstt/logger"
 	"rsstt/models"
 	"rsstt/service"
+	"rsstt/web"
 )
 
 func main() {
@@ -19,11 +22,17 @@ func main() {
 	logger.Log.Info("Starting application")
 	if err != nil {
 		logger.Log.Error("Error loading config", err)
-		panic(err)
+		os.Exit(1)
 	}
+
 	models.ConnectDb(config.DatabasePath)
-	bot := service.CreateBot(config.TelegramBotToken)
-	updates := service.GetUpdates(bot, config.TelegramBotUrl)
+
+	service.SetServiceConfig(&service.ServiceConfig{
+		HTTPTimeout:        config.HTTPTimeout,
+		MaxRetries:         config.MaxRetries,
+		MaxMessagesPerUser: config.MaxMessagesPerUser,
+		MaxConcurrentFeeds: config.MaxConcurrentFeeds,
+	})
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -33,59 +42,75 @@ func main() {
 
 	var wg sync.WaitGroup
 
+	// feed update loop
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		logger.Log.Debug("Start Processing updates")
-		service.ProcessUpdates(ctx, bot, updates, config.TelegramAdminChatID())
-		logger.Log.Debug("End Processing updates")
-	}()
-
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		updateTicker := time.NewTicker(5 * time.Minute)
-		defer updateTicker.Stop()
-
+		defer func() {
+			if r := recover(); r != nil {
+				logger.Log.Errorf("Panic in feed update: %v", r)
+			}
+		}()
+		ticker := time.NewTicker(time.Duration(config.FeedUpdateInterval) * time.Minute)
+		defer ticker.Stop()
+		logger.Log.Debug("Updating feeds (initial)")
+		service.UpdateFeeds()
 		for {
 			select {
 			case <-ctx.Done():
-				logger.Log.Info("Stopping feeds update")
 				return
-			case <-updateTicker.C:
-				logger.Log.Debug("Start Updating feeds")
+			case <-ticker.C:
+				logger.Log.Debug("Updating feeds")
 				service.UpdateFeeds()
-				logger.Log.Debug("End Updating feeds")
 			}
 		}
 	}()
 
+	// send loop
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		sendTicker := time.NewTicker(5 * time.Minute)
-		defer sendTicker.Stop()
-
+		defer func() {
+			if r := recover(); r != nil {
+				logger.Log.Errorf("Panic in send loop: %v", r)
+			}
+		}()
+		ticker := time.NewTicker(time.Duration(config.SendToUsersInterval) * time.Minute)
+		defer ticker.Stop()
+		logger.Log.Debug("Sending to user (initial)")
+		service.SendToUser(config.TelegramAdminId, config.TelegramBotURL())
 		for {
 			select {
 			case <-ctx.Done():
-				logger.Log.Info("Stopping sending to users")
 				return
-			case <-sendTicker.C:
-				logger.Log.Debug("Start Sending to users")
-				service.SendToAllUsers(config.TelegramBotURL())
-				logger.Log.Debug("End Sending to users")
+			case <-ticker.C:
+				logger.Log.Debug("Sending to user")
+				service.SendToUser(config.TelegramAdminId, config.TelegramBotURL())
 			}
+		}
+	}()
+
+	// web admin
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		mux := http.NewServeMux()
+		web.RegisterHandlers(mux)
+		addr := fmt.Sprintf(":%d", config.AdminPort)
+		logger.Log.Infof("Web admin on http://localhost%s", addr)
+		srv := &http.Server{Addr: addr, Handler: mux}
+		go func() {
+			<-ctx.Done()
+			srv.Close()
+		}()
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			logger.Log.Errorf("Web server error: %v", err)
 		}
 	}()
 
 	sig := <-sigChan
-	logger.Log.Infof("Received signal: %v", sig)
-
+	logger.Log.Infof("Received signal: %v, shutting down", sig)
 	cancel()
-
-	logger.Log.Info("Waiting for all operations to complete...")
 	wg.Wait()
-
-	logger.Log.Info("Application shutdown complete")
+	logger.Log.Info("Shutdown complete")
 }

@@ -1,8 +1,6 @@
 package repository
 
 import (
-	"time"
-
 	"rsstt/models"
 
 	"github.com/mmcdole/gofeed"
@@ -17,6 +15,7 @@ func CreateFeed(url string, feed *gofeed.Feed) models.Feed {
 		FeedLink:    &feed.FeedLink,
 		FeedType:    feed.FeedType,
 		FeedVersion: feed.FeedVersion,
+		IsActive:    true,
 	}
 	models.DB.Create(&feedModel)
 	return feedModel
@@ -34,11 +33,22 @@ func FetchAllFeeds() []models.Feed {
 	return feeds
 }
 
-func FetchOutdatedFeeds() []models.Feed {
+func FetchActiveFeeds() []models.Feed {
 	var feeds []models.Feed
-	fifteenMinutesAgo := time.Now().Add(-15 * time.Minute)
-	models.DB.Where("last_fetched_at < ? OR last_fetched_at IS NULL", fifteenMinutesAgo).Find(&feeds)
+	models.DB.Where("is_active = ?", true).Find(&feeds)
 	return feeds
+}
+
+func ToggleFeedActive(id uint) {
+	var feed models.Feed
+	if err := models.DB.First(&feed, id).Error; err != nil {
+		return
+	}
+	models.DB.Model(&feed).Update("is_active", !feed.IsActive)
+}
+
+func DeleteFeed(id uint) {
+	models.DB.Delete(&models.Feed{}, id)
 }
 
 func SetLastFetchedAt(feed *models.Feed) {
