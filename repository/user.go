@@ -4,6 +4,8 @@ import (
 	"time"
 
 	"rsstt/models"
+
+	"gorm.io/gorm/clause"
 )
 
 func GetUnseenItems(limit int) []models.Item {
@@ -22,7 +24,7 @@ func GetUnseenItems(limit int) []models.Item {
 	hour := now.Hour()
 	if hour >= 8 && hour <= 21 && hour%3 == 0 && now.Minute() < 5 {
 		var oldItems []models.Item
-		models.DB.Where("seen_items.item_id IS NULL").
+		models.DB.Where("seen_items.item_id IS NULL AND items.created_at < ?", last24Hours).
 			Joins("JOIN feeds ON items.feed_id = feeds.id AND feeds.is_active = TRUE AND feeds.deleted_at IS NULL").
 			Joins("LEFT OUTER JOIN seen_items ON items.id = seen_items.item_id").
 			Order("items.created_at DESC").
@@ -39,19 +41,9 @@ func MarkItemsAsSeen(itemIDs []uint) {
 		return
 	}
 
-	tx := models.DB.Begin()
-	defer func() {
-		if r := recover(); r != nil {
-			tx.Rollback()
-		}
-	}()
-
+	seenItems := make([]models.SeenItem, 0, len(itemIDs))
 	for _, itemID := range itemIDs {
-		if err := tx.Create(&models.SeenItem{ItemID: itemID}).Error; err != nil {
-			tx.Rollback()
-			return
-		}
+		seenItems = append(seenItems, models.SeenItem{ItemID: itemID})
 	}
-
-	tx.Commit()
+	models.DB.Clauses(clause.OnConflict{DoNothing: true}).Create(&seenItems)
 }
